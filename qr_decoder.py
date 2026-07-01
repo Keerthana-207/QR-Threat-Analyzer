@@ -13,17 +13,13 @@ def decode_qr(image_path):
             "message": "Invalid image"
         }
 
-
     data, points, _ = detector.detectAndDecode(image)
 
-
     if data:
-
         return {
             "success": True,
             "data": [data]
         }
-
 
     return {
         "success": False,
