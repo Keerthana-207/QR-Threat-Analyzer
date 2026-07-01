@@ -1,0 +1,9 @@
+flask
+opencv-python
+pyzbar
+requests
+python-whois
+tldextract
+pillow
+validators
+sqlite3
