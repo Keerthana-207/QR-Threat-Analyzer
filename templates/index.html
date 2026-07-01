@@ -1,64 +1,117 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Threat Analyzer - Dashboard</title>
-    <link rel="stylesheet" href="../static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-qrcode"></i> <span>QRShield</span>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        
+        <div id="upload-card" class="cyber-panel p-4 p-sm-5 text-center">
+            
+            <div class="mb-4">
+                <span class="small fw-bold text-uppercase tracking-widest d-block mb-1" style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); font-size: 0.75rem;">
+                    [ NODE_STATUS: ONLINE ]
+                </span>
+                <h1 class="fw-black tracking-widest text-uppercase h2 m-0" style="color: var(--neon-cyan); text-shadow: 0 0 12px var(--neon-cyan); font-weight: 900;">
+                    QR THREAT ANALYZER
+                </h1>
+                <p class="text-muted small mt-2 text-uppercase tracking-wider" style="font-size: 0.75rem;">
+                    Decrypting arrays // Isolating malicious payload vectors
+                </p>
             </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item active" id="nav-index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="scan.html" class="nav-item" id="nav-scan"><i class="fa-solid fa-shield-virus"></i> Analyze QR</a>
-                <a href="history.html" class="nav-item" id="nav-history"><i class="fa-solid fa-list-check"></i> Analysis Log</a>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="top-header">
-                <h1 id="page-title">Dashboard</h1>
-                <div class="system-badge secure">
-                    <i class="fa-solid fa-circle-check"></i> Core Engine Active
-                </div>
-            </header>
-
-            <div class="content-body">
-                <div class="dashboard-grid">
-                    <div class="card stat-card">
-                        <h3>Total QR Codes Scanned</h3>
-                        <p class="stat-number">412</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>Malicious/Phishing Found</h3>
-                        <p class="stat-number dangerous">18</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>Safe QR Directs</h3>
-                        <p class="stat-number secure">394</p>
-                    </div>
-                </div>
-
-                <div class="card recent-threats">
-                    <h3>Live Threat Vectors</h3>
-                    <div class="threat-alert-box">
-                        <i class="fa-solid fa-triangle-exclamation dangerous"></i>
-                        <div>
-                            <strong>Recent Malicious Target:</strong> <code>http://login.verification-banking-secure.cc/pay</code>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Detected via QR Code Image ID #8892</div>
-                        </div>
+            
+            <div class="d-flex justify-content-center mb-4">
+                <div class="qr-cyber-container">
+                    <div class="qr-scanner-box">
+                        <div class="laser-line"></div>
                     </div>
                 </div>
             </div>
-        </main>
+
+            <form action="/upload" method="POST" enctype="multipart/form-data" id="analyzer-form">
+                <div class="drop-zone p-5 text-center position-relative" id="dropZone">
+                    <i class="fa-solid fa-cloud-arrow-up fa-3x mb-3 text-secondary" id="upload-icon" style="color: var(--neon-cyan) !important; filter: drop-shadow(0 0 5px var(--neon-cyan));"></i>
+                    <h5 class="fw-bold text-uppercase h6" style="letter-spacing: 1px; color: #ffffff;">INGESTION_BUFFER</h5>
+                    <p class="small text-muted mb-0" id="upload-text">Drag & drop QR image matrix here or click to explore paths</p>
+                    
+                    <input type="file" name="qr_file" id="fileInput" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" accept="image/*" style="cursor: pointer;" required>
+                </div>
+            </form>
+        </div>
+
+        <div id="loading-card" class="cyber-panel p-4 p-sm-5 d-none">
+            <h4 class="fw-bold mb-4 text-center text-uppercase" style="color: var(--neon-pink); text-shadow: 0 0 8px var(--neon-pink);">
+                <i class="fa-solid fa-terminal fa-spin me-2"></i> PROCESSING_PAYLOAD...
+            </h4>
+            
+            <div class="terminal-stepper-logs px-2 small text-monospace">
+                <div class="step-item active mb-3 d-flex align-items-center" id="step-1">
+                    <div class="step-icon-wrap me-3" id="icon-1">[01]</div>
+                    <div>
+                        <span class="fw-bold text-uppercase d-block">Parsing Raster Bitmaps</span>
+                        <span class="text-muted text-xs">Decoding localized alignment patterns...</span>
+                    </div>
+                </div>
+                
+                <div class="step-item mb-3 d-flex align-items-center" id="step-2">
+                    <div class="step-icon-wrap me-3" id="icon-2">[02]</div>
+                    <div>
+                        <span class="fw-bold text-uppercase d-block">Evaluating Vector Reputations</span>
+                        <span class="text-muted text-xs">Querying heuristics against global firewalls...</span>
+                    </div>
+                </div>
+                
+                <div class="step-item d-flex align-items-center" id="step-3">
+                    <div class="step-icon-wrap me-3" id="icon-3">[03]</div>
+                    <div>
+                        <span class="fw-bold text-uppercase d-block">Compiling Integrity Log</span>
+                        <span class="text-muted text-xs">Calculating core index classification...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress mt-4 bg-dark rounded-0" style="height: 3px; border: 1px solid rgba(0,240,255,0.2);">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%; background-color: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan);"></div>
+            </div>
+        </div>
+
     </div>
+</div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const fileInput = document.getElementById('fileInput');
+    const analyzerForm = document.getElementById('analyzer-form');
+    const uploadCard = document.getElementById('upload-card');
+    const loadingCard = document.getElementById('loading-card');
+
+    if (fileInput) {
+        // Triggered automatically when the user chooses or drops an image file
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                // Swaps the interface cards to show the processing terminal screen
+                uploadCard.classList.add('d-none');
+                loadingCard.classList.remove('d-none');
+
+                // Step 2 lights up green after 1.2 seconds
+                setTimeout(() => {
+                    document.getElementById('step-2').classList.add('active');
+                    document.getElementById('icon-1').style.color = 'var(--neon-green)';
+                    document.getElementById('icon-1').innerText = '[✓]';
+                }, 1200);
+
+                // Step 3 lights up green after 2.4 seconds
+                setTimeout(() => {
+                    document.getElementById('step-3').classList.add('active');
+                    document.getElementById('icon-2').style.color = 'var(--neon-green)';
+                    document.getElementById('icon-2').innerText = '[✓]';
+                }, 2400);
+
+                // Final handover submission to Flask backend at 3.6 seconds
+                setTimeout(() => {
+                    analyzerForm.submit();
+                }, 3600);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

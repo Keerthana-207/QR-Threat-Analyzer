@@ -1,78 +1,101 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Threat Analyzer - Log History</title>
-    <link rel="stylesheet" href="../static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-qrcode"></i> <span>QRShield</span>
-            </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item" id="nav-index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="scan.html" class="nav-item" id="nav-scan"><i class="fa-solid fa-shield-virus"></i> Analyze QR</a>
-                <a href="history.html" class="nav-item" id="nav-history"><i class="fa-solid fa-list-check"></i> Analysis Log</a>
-            </nav>
-        </aside>
+{% block content %}
+<style>
+    .cyber-table {
+        color: var(--cyber-text) !important;
+        border-color: rgba(0, 240, 255, 0.1) !important;
+    }
+    
+    .cyber-table thead th {
+        color: var(--neon-cyan) !important;
+        text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+        border-bottom: 2px solid var(--neon-cyan) !important;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+    }
 
-        <main class="main-content">
-            <header class="top-header">
-                <h1 id="page-title">Analysis Log</h1>
-                <div class="system-badge secure">
-                    <i class="fa-solid fa-circle-check"></i> Core Engine Active
+    .cyber-table tbody tr {
+        background-color: rgba(18, 18, 37, 0.4) !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .cyber-table tbody tr:hover {
+        background-color: rgba(0, 240, 255, 0.04) !important;
+    }
+
+    .log-row {
+        animation: tableFadeIn 0.5s ease standard forwards;
+    }
+
+    @keyframes tableFadeIn {
+        from { opacity: 0; transform: scaleX(0.98); }
+        to { opacity: 1; transform: scaleX(1); }
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        
+        <div class="cyber-panel p-4 p-sm-5">
+            
+            <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
+                <div>
+                    <span style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);" class="small fw-bold text-uppercase d-block mb-1">&gt; SYSTEM_MEMORY_BANK</span>
+                    <h2 class="fw-bold text-uppercase m-0 h4 text-light"><i class="fa-solid fa-database me-2" style="color: var(--neon-cyan);"></i>CENTRAL INTELLIGENCE LOGS</h2>
                 </div>
-            </header>
-
-            <div class="content-body">
-                <div class="card table-card">
-                    <h2>Threat Log & Auditing</h2>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>Source Type</th>
-                                    <th>Extracted Endpoint Data</th>
-                                    <th>Threat Score</th>
-                                    <th>Verdict</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>2026-07-01 17:12</td>
-                                    <td><i class="fa-solid fa-file-image"></i> PNG Image</td>
-                                    <td><code>https://github.com/secure-payload-check</code></td>
-                                    <td><span class="score score-low">0/100</span></td>
-                                    <td><span class="badge badge-success">Clean / Safe</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-07-01 15:44</td>
-                                    <td><i class="fa-solid fa-link"></i> Direct String</td>
-                                    <td><code>http://bit.ly/malicious-shortener-xyz</code></td>
-                                    <td><span class="score score-high">87/100</span></td>
-                                    <td><span class="badge badge-fail">Malicious</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-30 11:02</td>
-                                    <td><i class="fa-solid fa-camera"></i> Camera Capture</td>
-                                    <td><code>WIFI:S:HomeNet;T:WPA;P:FalsePassword;;</code></td>
-                                    <td><span class="score score-mid">45/100</span></td>
-                                    <td><span class="badge badge-warn">Suspicious</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="mt-2 mt-sm-0 text-monospace small text-muted">
+                    SECURE_ARCHIVE // ACTIVE
                 </div>
             </div>
-        </main>
+
+            <div class="table-responsive text-monospace">
+                <table class="table cyber-table table-hover align-middle mb-0">
+                    <thead class="text-uppercase small">
+                        <tr>
+                            <th scope="col" style="width: 15%;">TIMESTAMP</th>
+                            <th scope="col" style="width: 50%;">DECODED TARGET ORIENTATION</th>
+                            <th scope="col" class="text-center" style="width: 15%;">RISK SCORE</th>
+                            <th scope="col" class="text-center" style="width: 20%;">VERDICT STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        {% if history_data %}
+                            {% for log in history_data %}
+                            <tr class="log-row">
+                                <td class="text-muted text-nowrap">{{ log.time }}</td>
+                                <td><code style="color: #ffffff;" class="text-break">{{ log.url }}</code></td>
+                                <td class="text-center fw-bold" style="color: {% if log.score >= 70 %}var(--neon-pink){% else %}var(--neon-green){% endif %};">
+                                    {{ log.score }}/100
+                                </td>
+                                <td class="text-center">
+                                    {% if log.status == 'High Risk' %}
+                                        <span class="badge rounded-0 px-2 py-1 text-uppercase w-100" style="background: rgba(255,0,85,0.1); color: var(--neon-pink); border: 1px solid var(--neon-pink); text-shadow: 0 0 4px var(--neon-pink);">CRIT_BREACH</span>
+                                    {% elif log.status == 'Suspicious' %}
+                                        <span class="badge bg-warning text-dark rounded-0 px-2 py-1 text-uppercase w-100">ANOMALY</span>
+                                    {% else %}
+                                        <span class="badge rounded-0 px-2 py-1 text-uppercase w-100" style="background: rgba(57,255,20,0.1); color: var(--neon-green); border: 1px solid var(--neon-green); text-shadow: 0 0 4px var(--neon-green);">CLEAR_NODE</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted text-uppercase">
+                                    <i class="fa-solid fa-folder-open fa-2x mb-3 d-block" style="color: var(--neon-pink);"></i>
+                                    [No system registries found inside cache buffer]
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex gap-2 mt-4 text-monospace small">
+                <a href="/" class="btn btn-cyber text-uppercase"><i class="fa-solid fa-bolt me-2"></i>Return_To_Scanner</a>
+            </div>
+
+        </div>
     </div>
-
-    <script src="../static/js/script.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,83 +1,121 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Threat Analyzer - Scan</title>
-    <link rel="stylesheet" href="../static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-qrcode"></i> <span>QRShield</span>
-            </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item" id="nav-index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="scan.html" class="nav-item" id="nav-scan"><i class="fa-solid fa-shield-virus"></i> Analyze QR</a>
-                <a href="history.html" class="nav-item" id="nav-history"><i class="fa-solid fa-list-check"></i> Analysis Log</a>
-            </nav>
-        </aside>
+{% block content %}
+<style>
+    .reveal-node {
+        opacity: 0;
+        transform: translateY(15px);
+        animation: cyberReveal 0.6s cubic-bezier(0.15, 0.85, 0.45, 1) forwards;
+    }
+    
+    .delay-1 { animation-delay: 0.3s; }
+    .delay-2 { animation-delay: 0.6s; }
+    .delay-3 { animation-delay: 0.9s; }
 
-        <main class="main-content">
-            <header class="top-header">
-                <h1 id="page-title">Analyze QR Code</h1>
-                <div class="system-badge secure">
-                    <i class="fa-solid fa-circle-check"></i> Core Engine Active
+    @keyframes cyberReveal {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Target Scan Indicator Overlay */
+    .target-overlay-panel {
+        background: repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.03), rgba(0, 240, 255, 0.03) 1px, transparent 1px, transparent 2px);
+        border: 1px solid rgba(0, 240, 255, 0.15);
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        
+        <div class="cyber-panel p-4 p-sm-5 target-overlay-panel">
+            
+            <div class="reveal-node d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
+                <div>
+                    <span style="color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);" class="small fw-bold text-uppercase d-block mb-1">&gt; COGNITIVE_DATA_FEED</span>
+                    <h2 class="fw-bold text-uppercase m-0 h4 text-light">ANALYSIS OUTPUT MATRIX</h2>
                 </div>
-            </header>
-
-            <div class="content-body">
-                <div class="card scan-container">
-                    <h2>Analyze a QR Code</h2>
-                    <p>Upload a QR code image or paste an extracted URL to run an intent payload, reputation check, and domain threat check.</p>
-                    
-                    <div class="analyzer-box">
-                        <div class="upload-zone" id="dropZone">
-                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                            <p>Drag & drop your QR Code image here, or <span class="highlight">browse files</span></p>
-                            <input type="file" id="qrFileInput" accept="image/*" style="display:none">
-                        </div>
-
-                        <div class="divider"><span>OR</span></div>
-
-                        <form id="analyzerForm" class="scan-form">
-                            <div class="input-group">
-                                <input type="url" id="targetUrlInput" placeholder="Paste extracted QR string or URL to analyze..." required>
-                                <button type="submit" class="btn-primary">Inspect URL</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div id="analysisReport" class="analysis-report hidden">
-                        <div class="report-header">
-                            <h3><i class="fa-solid fa-circle-notch" id="statusSpinner"></i> Analysis Status: <span id="statusText">Processing Payload...</span></h3>
-                        </div>
-                        
-                        <div class="progress-bar-bg">
-                            <div id="progressBar" class="progress-bar-fill"></div>
-                        </div>
-
-                        <div class="report-results hidden" id="reportResults">
-                            <div class="result-verdict" id="verdictBox">
-                                <h4 id="verdictTitle">Suspicious Link Detected</h4>
-                                <p id="verdictDescription">This URL contains suspicious redirect patterns common in credential harvesting.</p>
-                            </div>
-                            
-                            <table class="report-table">
-                                <tr><td><strong>Extracted Content:</strong></td><td id="resUrl">...</td></tr>
-                                <tr><td><strong>Domain Reputation:</strong></td><td id="resRep">...</td></tr>
-                                <tr><td><strong>SSL Certificate Status:</strong></td><td id="resSsl">...</td></tr>
-                            </table>
-                        </div>
-                    </div>
+                
+                <div class="mt-2 mt-sm-0">
+                    {% if data.status == 'High Risk' %}
+                        <span class="badge rounded-0 px-3 py-2 text-uppercase fs-6" style="background-color: var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink); border: 1px solid #ffffff;"><i class="fa-solid fa-triangle-exclamation fa-beat me-2"></i> MALICIOUS_THREAT</span>
+                    {% elif data.status == 'Suspicious' %}
+                        <span class="badge bg-warning text-dark rounded-0 px-3 py-2 text-uppercase fs-6" style="box-shadow: 0 0 15px #ffc107;"><i class="fa-solid fa-user-secret me-2"></i> UNVERIFIED_ANOMALY</span>
+                    {% else %}
+                        <span class="badge rounded-0 px-3 py-2 text-uppercase fs-6" style="background-color: var(--neon-green); color: #0a0a12; box-shadow: 0 0 15px var(--neon-green); font-weight: bold;"><i class="fa-solid fa-circle-check me-2"></i> VERDICT_CLEAN</span>
+                    {% endif %}
                 </div>
             </div>
-        </main>
+
+            <div class="reveal-node delay-1 mb-4">
+                <label class="form-label text-muted small fw-bold text-uppercase text-monospace">&gt;&gt; Decoded Destination URI</label>
+                <div class="p-3 rounded-0 d-flex justify-content-between align-items-center text-monospace" style="background: #06060c; border: 1px solid rgba(0, 240, 255, 0.3);">
+                    <code class="fs-6 text-break" style="color: var(--neon-cyan); font-weight: bold;" id="decodedUrl">{{ data.decoded_url }}</code>
+                    <button class="btn btn-cyber btn-sm ms-2" onclick="copyUrl()"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
+
+            <div class="reveal-node delay-2 mb-4">
+                <div class="d-flex justify-content-between mb-1 small text-monospace">
+                    <span class="text-muted fw-bold">PROBABILITY DENSITY RISK PROFILE</span>
+                    <span class="fw-bold" style="color: var(--neon-pink);">{{ data.score }}% INDEX SEVERITY</span>
+                </div>
+                <div class="progress rounded-0 bg-dark" style="height: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                    {% if data.score >= 70 %}
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: {{ data.score }}%; background-color: var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink);"></div>
+                    {% else %}
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: {{ data.score }}%; background-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green);"></div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="reveal-node delay-3 mb-4">
+                <label class="form-label text-muted small fw-bold text-uppercase text-monospace">&gt;&gt; Active Intercept Hits</label>
+                <ul class="list-group rounded-0 text-monospace small">
+                    {% if data.reasons %}
+                        {% for reason in data.reasons %}
+                            <li class="list-group-item bg-dark text-light border-secondary d-flex align-items-center py-2" style="background-color: #0b0b14 !important;">
+                                <i class="fa-solid fa-circle-nodes me-3" style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);"></i> [CRITICAL_FLAG] {{ reason }}
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item bg-dark text-light border-secondary d-flex align-items-center py-2" style="background-color: #0b0b14 !important;">
+                            <i class="fa-solid fa-circle-check me-3" style="color: var(--neon-green);"></i> [INTEGRITY_SAFE] Pass pattern checks.
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="reveal-node delay-3 alert rounded-0 border text-monospace small p-3 mb-0" 
+                 style="background: rgba(18, 18, 37, 0.7); 
+                        border-color: {% if data.status == 'High Risk' %}var(--neon-pink){% else %}var(--neon-cyan){% endif %} !important;">
+                <h6 class="fw-bold text-uppercase m-0 mb-2" style="color: {% if data.status == 'High Risk' %}var(--neon-pink){% else %}var(--neon-cyan){% endif %};">
+                    <i class="fa-solid fa-terminal me-2"></i>FIREWALL RECOMMENDED REACTION
+                </h6>
+                <p class="mb-0 text-light-50" style="line-height: 1.5; font-size: 0.8rem;">
+                    {% if data.status == 'High Risk' %}
+                        CRITICAL WARNING: Payload routing parameters show deliberate phishing heuristics. Automated secure firewalls advise aborting the connection trace immediately. Do NOT run this handshake signature.
+                    {% else %}
+                        NOTICE: Dynamic verification signatures returned valid hashes. Route cleared through secure white-lists. Safe to map execution pointers.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="reveal-node delay-3 d-flex flex-wrap gap-2 mt-4 text-monospace">
+                <a href="/" class="btn btn-cyber-pink px-4 text-uppercase small"><i class="fa-solid fa-arrow-left-long me-2"></i>Incept_New_Scan</a>
+                <button onclick="window.print()" class="btn btn-cyber ms-sm-auto text-uppercase small"><i class="fa-solid fa-print me-2"></i>Dump_Telemetry_Logs</button>
+            </div>
+
+        </div>
     </div>
+</div>
 
-    <script src="../static/js/script.js"></script>
-</body>
-</html>
+<script>
+function copyUrl() {
+    const urlText = document.getElementById('decodedUrl').innerText;
+    navigator.clipboard.writeText(urlText);
+    alert('STRING BITSTREAM DUPLICATED TO SYSTEM MEMORY CACHE');
+}
+</script>
+{% endblock %}

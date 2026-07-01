@@ -1,121 +1,69 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Navigation Highlighting
-    const currentPath = window.location.pathname;
-    const navItems = document.querySelectorAll(".nav-menu .nav-item");
-    let matched = false;
+document.addEventListener("DOMContentLoaded", function() {
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const filenameSpan = document.getElementById('filename-span');
+    const previewWrapper = document.getElementById('preview-wrapper');
+    const uploadIcon = document.getElementById('upload-icon');
+    const uploadText = document.getElementById('upload-text');
 
-    navItems.forEach(item => {
-        const href = item.getAttribute("href");
-        if (currentPath.endsWith(href)) {
-            item.classList.add("active");
-            matched = true;
-        } else {
-            item.classList.remove("active");
-        }
-    });
+    const analyzerForm = document.getElementById('analyzer-form');
+    const uploadCard = document.getElementById('upload-card');
+    const loadingCard = document.getElementById('loading-card');
 
-    if (!matched && (currentPath === "/" || currentPath.endsWith("templates/"))) {
-        const dashboardLink = document.getElementById("nav-index");
-        if (dashboardLink) dashboardLink.classList.add("active");
-    }
-
-    // 2. Interactive File Scanning triggers
-    const dropZone = document.getElementById("dropZone");
-    const fileInput = document.getElementById("qrFileInput");
-
-    if (dropZone && fileInput) {
-        dropZone.addEventListener("click", () => fileInput.click());
-        fileInput.addEventListener("change", () => {
+    // Live Change Listener for Selected Image Detection
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
             if (fileInput.files.length > 0) {
-                runMatrixAnalysis("https://malicious-phishing-login.xyz/banking/update");
+                const name = fileInput.files[0].name;
+                filenameSpan.innerText = name;
+                previewWrapper.classList.remove('d-none');
+                uploadIcon.className = "fa-solid fa-file-circle-check fa-3x text-success mb-3";
+                uploadText.innerText = "Target locked. Ready to run diagnosis.";
             }
         });
     }
 
-    // 3. Text Form Submission Trigger
-    const analyzerForm = document.getElementById("analyzerForm");
-    if (analyzerForm) {
-        analyzerForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const urlInput = document.getElementById("targetUrlInput").value;
-            runMatrixAnalysis(urlInput);
+    // Interactive Drag Styling toggles
+    if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
         });
     }
 
-    // 4. Matrix Decryption Effect Simulator
-    function decryptTextEffect(element, finalText, duration = 400) {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
-        let iterations = 0;
-        clearInterval(element.interval);
+    // Intercepts submit submission to play out an advanced simulated pipeline timeline sequence
+    if (analyzerForm) {
+        analyzerForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Pause form to run UI animations first
+            
+            uploadCard.classList.add('d-none');
+            loadingCard.classList.remove('d-none');
 
-        element.interval = setInterval(() => {
-            element.innerText = finalText
-                .split("")
-                .map((char, index) => {
-                    if (index < iterations) return finalText[index];
-                    return chars[Math.floor(Math.random() * chars.length)];
-                })
-                .join("");
-
-            if (iterations >= finalText.length) clearInterval(element.interval);
-            iterations += finalText.length / 10;
-        }, duration / 10);
-    }
-
-    // 5. Main Scanner Execution Flow
-    function runMatrixAnalysis(targetPayload) {
-        const report = document.getElementById("analysisReport");
-        const progressBar = document.getElementById("progressBar");
-        const statusText = document.getElementById("statusText");
-        const reportResults = document.getElementById("reportResults");
-        const spinner = document.getElementById("statusSpinner");
-        
-        const resUrl = document.getElementById("resUrl");
-        const resRep = document.getElementById("resRep");
-        const resSsl = document.getElementById("resSsl");
-        const verdictBox = document.getElementById("verdictBox");
-        const verdictTitle = document.getElementById("verdictTitle");
-
-        if (!report || !progressBar || !statusText || !reportResults) return;
-
-        report.classList.remove("hidden");
-        reportResults.classList.add("hidden");
-        if (spinner) spinner.classList.add("fa-spin");
-        
-        let progress = 0;
-        progressBar.style.width = "0%";
-        
-        const steps = [
-            { p: 25, txt: "DECRYPTING_MATRIX_STRINGS..." },
-            { p: 50, txt: "QUERYING_GLOBAL_BLACKLISTS..." },
-            { p: 75, txt: "ANALYZING_HOST_SSL_CERTIFICATE..." },
-            { p: 100, txt: "ANALYSIS_COMPLETE." }
-        ];
-
-        steps.forEach((step, index) => {
+            // Timeline Sequence Delays
             setTimeout(() => {
-                progressBar.style.width = `${step.p}%`;
-                decryptTextEffect(statusText, step.txt);
-                
-                if (step.p === 100) {
-                    if (spinner) spinner.classList.remove("fa-spin");
-                    resUrl.innerHTML = `<code>${targetPayload}</code>`;
-                    reportResults.classList.remove("hidden");
+                document.getElementById('step-2').classList.add('active');
+                document.getElementById('icon-1').innerHTML = '<i class="fa-solid fa-check"></i>';
+                document.getElementById('icon-1').style.background = '#198754';
+            }, 1200); // Activate step 2 at 1.2 seconds
 
-                    const lowerPayload = targetPayload.toLowerCase();
-                    if (lowerPayload.includes("bank") || lowerPayload.includes("malicious") || lowerPayload.includes("xyz")) {
-                        verdictBox.className = "result-verdict danger";
-                        decryptTextEffect(verdictTitle, "CRITICAL THREAT IDENTIFIED");
-                        resRep.innerHTML = "<span class='score score-high'>Suspicious / Flagged</span>";
-                        resSsl.innerHTML = "<span class='score score-high'>Missing or Spoofed</span>";
-                    } else {
-                        verdictBox.className = "result-verdict safe";
-                        decryptTextEffect(verdictTitle, "SECURE VERDICT: SAFE RESORT");
-                        resRep.innerHTML = "<span class='score score-low'>Verified (0 Flags)</span>";
-                        resSsl.innerHTML = "<span class='score score-low'>Valid / Safe Issuer</span>";
-                    }
-                }
-            }, (index + 1) * 700);
+            setTimeout(() => {
+                document.getElementById('step-3').classList.add('active');
+                document.getElementById('icon-2').innerHTML = '<i class="fa-solid fa-check"></i>';
+                document.getElementById('icon-2').style.background = '#198754';
+            }, 2600); // Activate step 3 at 2.6 seconds
+
+            setTimeout(() => {
+                // Submit the form data to the actual Python Flask backend view route
+                analyzerForm.submit();
+            }, 3800); // Complete processing hand-off at 3.8 seconds
         });
     }
 });
+
+function copyUrl() {
+    const urlText = document.getElementById('decodedUrl').innerText;
+    navigator.clipboard.writeText(urlText);
+    alert('URL copied to clipboard!');
+}
