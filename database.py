@@ -1,6 +1,5 @@
 import sqlite3
 from datetime import datetime
-from json.decoder import scanstring
 
 DB_NAME = "qr_scans.db"
 
