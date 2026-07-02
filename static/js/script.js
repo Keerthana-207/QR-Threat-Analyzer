@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     const currentPath = window.location.pathname;
     const navItems = document.querySelectorAll(".nav-menu .nav-item");
     let matched = false;

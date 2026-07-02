@@ -6,12 +6,12 @@ from upload_handler import save_upload
 from threat_engine import analyze_payload
 
 app = Flask(__name__)
-
 UPLOAD_FOLDER = "uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+# Initialize database on startup
 init_db()
 
 @app.route("/")
@@ -60,4 +60,5 @@ def api_upload():
     return jsonify({"success": True, "result": scan_result})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Force host='0.0.0.0' to ensure local firewalls don't block the connection
+    app.run(host='0.0.0.0', port=5000, debug=True)

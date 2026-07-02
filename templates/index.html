@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
     <div class="dashboard-grid">
@@ -17,18 +17,6 @@
         <div class="card stat-card">
             <h3>Clean / Verified</h3>
             <p class="stat-number secure">{{ summary.clean }}</p>
-        </div>
-    </div>
-
-    <div class="card recent-threats">
-        <h3>Live Threat Vector</h3>
-        <div class="threat-alert-box">
-            <i class="fa-solid fa-triangle-exclamation dangerous"></i>
-            <div>
-                <strong>Recent Malicious Target:</strong>
-                <code>http://login.verification-banking-secure.cc/pay</code>
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Detected via QR Code Analysis Engine</div>
-            </div>
         </div>
     </div>
 {% endblock %}
