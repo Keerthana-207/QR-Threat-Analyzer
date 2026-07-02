@@ -1,78 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Threat Analyzer - Log History</title>
-    <link rel="stylesheet" href="../static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+﻿{% extends "base.html" %}
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-qrcode"></i> <span>QRShield</span>
-            </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item" id="nav-index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="scan.html" class="nav-item" id="nav-scan"><i class="fa-solid fa-shield-virus"></i> Analyze QR</a>
-                <a href="history.html" class="nav-item" id="nav-history"><i class="fa-solid fa-list-check"></i> Analysis Log</a>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="top-header">
-                <h1 id="page-title">Analysis Log</h1>
-                <div class="system-badge secure">
-                    <i class="fa-solid fa-circle-check"></i> Core Engine Active
-                </div>
-            </header>
-
-            <div class="content-body">
-                <div class="card table-card">
-                    <h2>Threat Log & Auditing</h2>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>Source Type</th>
-                                    <th>Extracted Endpoint Data</th>
-                                    <th>Threat Score</th>
-                                    <th>Verdict</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>2026-07-01 17:12</td>
-                                    <td><i class="fa-solid fa-file-image"></i> PNG Image</td>
-                                    <td><code>https://github.com/secure-payload-check</code></td>
-                                    <td><span class="score score-low">0/100</span></td>
-                                    <td><span class="badge badge-success">Clean / Safe</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-07-01 15:44</td>
-                                    <td><i class="fa-solid fa-link"></i> Direct String</td>
-                                    <td><code>http://bit.ly/malicious-shortener-xyz</code></td>
-                                    <td><span class="score score-high">87/100</span></td>
-                                    <td><span class="badge badge-fail">Malicious</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-30 11:02</td>
-                                    <td><i class="fa-solid fa-camera"></i> Camera Capture</td>
-                                    <td><code>WIFI:S:HomeNet;T:WPA;P:FalsePassword;;</code></td>
-                                    <td><span class="score score-mid">45/100</span></td>
-                                    <td><span class="badge badge-warn">Suspicious</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
+{% block content %}
+    <div class="card table-card">
+        <h2>Threat Log & Auditing</h2>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Source Type</th>
+                        <th>Extracted Endpoint Data</th>
+                        <th>Threat Score</th>
+                        <th>Verdict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if scans %}
+                        {% for scan in scans %}
+                            <tr>
+                                <td>{{ scan[5] }}</td>
+                                <td>{{ scan[4] }}</td>
+                                <td><code>{{ scan[1] }}</code></td>
+                                <td><span class="score {{ 'score-high' if scan[2] >= 65 else 'score-mid' if scan[2] >= 35 else 'score-low' }}">{{ scan[2] }}/100</span></td>
+                                <td>
+                                    {% if scan[3] == 'Malicious' %}
+                                        <span class="badge badge-fail">Malicious</span>
+                                    {% elif scan[3] == 'Suspicious' %}
+                                        <span class="badge badge-warn">Suspicious</span>
+                                    {% else %}
+                                        <span class="badge badge-success">Clean / Safe</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align:center; color: var(--text-muted);">No scans recorded yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <script src="../static/js/script.js"></script>
-</body>
-</html>
+{% endblock %}

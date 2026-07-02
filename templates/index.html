@@ -1,64 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Threat Analyzer - Dashboard</title>
-    <link rel="stylesheet" href="../static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+﻿{% extends "base.html" %}
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-qrcode"></i> <span>QRShield</span>
-            </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item active" id="nav-index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="scan.html" class="nav-item" id="nav-scan"><i class="fa-solid fa-shield-virus"></i> Analyze QR</a>
-                <a href="history.html" class="nav-item" id="nav-history"><i class="fa-solid fa-list-check"></i> Analysis Log</a>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="top-header">
-                <h1 id="page-title">Dashboard</h1>
-                <div class="system-badge secure">
-                    <i class="fa-solid fa-circle-check"></i> Core Engine Active
-                </div>
-            </header>
-
-            <div class="content-body">
-                <div class="dashboard-grid">
-                    <div class="card stat-card">
-                        <h3>Total QR Codes Scanned</h3>
-                        <p class="stat-number">412</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>Malicious/Phishing Found</h3>
-                        <p class="stat-number dangerous">18</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>Safe QR Directs</h3>
-                        <p class="stat-number secure">394</p>
-                    </div>
-                </div>
-
-                <div class="card recent-threats">
-                    <h3>Live Threat Vectors</h3>
-                    <div class="threat-alert-box">
-                        <i class="fa-solid fa-triangle-exclamation dangerous"></i>
-                        <div>
-                            <strong>Recent Malicious Target:</strong> <code>http://login.verification-banking-secure.cc/pay</code>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Detected via QR Code Image ID #8892</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+{% block content %}
+    <div class="dashboard-grid">
+        <div class="card stat-card">
+            <h3>Total QR Codes Scanned</h3>
+            <p class="stat-number">{{ summary.total }}</p>
+        </div>
+        <div class="card stat-card">
+            <h3>Malicious / Phishing Found</h3>
+            <p class="stat-number dangerous">{{ summary.malicious }}</p>
+        </div>
+        <div class="card stat-card">
+            <h3>Suspicious / Review</h3>
+            <p class="stat-number warning">{{ summary.suspicious }}</p>
+        </div>
+        <div class="card stat-card">
+            <h3>Clean / Verified</h3>
+            <p class="stat-number secure">{{ summary.clean }}</p>
+        </div>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <div class="card recent-threats">
+        <h3>Live Threat Vector</h3>
+        <div class="threat-alert-box">
+            <i class="fa-solid fa-triangle-exclamation dangerous"></i>
+            <div>
+                <strong>Recent Malicious Target:</strong>
+                <code>http://login.verification-banking-secure.cc/pay</code>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Detected via QR Code Analysis Engine</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,12 +1,11 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Navigation Highlighting
+﻿document.addEventListener("DOMContentLoaded", () => {
     const currentPath = window.location.pathname;
     const navItems = document.querySelectorAll(".nav-menu .nav-item");
     let matched = false;
 
     navItems.forEach(item => {
         const href = item.getAttribute("href");
-        if (currentPath.endsWith(href)) {
+        if (href && currentPath.endsWith(href)) {
             item.classList.add("active");
             matched = true;
         } else {
@@ -14,108 +13,171 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    if (!matched && (currentPath === "/" || currentPath.endsWith("templates/"))) {
+    if (!matched) {
         const dashboardLink = document.getElementById("nav-index");
         if (dashboardLink) dashboardLink.classList.add("active");
     }
 
-    // 2. Interactive File Scanning triggers
     const dropZone = document.getElementById("dropZone");
     const fileInput = document.getElementById("qrFileInput");
+    const analyzerForm = document.getElementById("analyzerForm");
 
     if (dropZone && fileInput) {
         dropZone.addEventListener("click", () => fileInput.click());
+
+        dropZone.addEventListener("dragover", (event) => {
+            event.preventDefault();
+            dropZone.classList.add("dragover");
+        });
+
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+
+        dropZone.addEventListener("drop", (event) => {
+            event.preventDefault();
+            dropZone.classList.remove("dragover");
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+
         fileInput.addEventListener("change", () => {
             if (fileInput.files.length > 0) {
-                runMatrixAnalysis("https://malicious-phishing-login.xyz/banking/update");
+                handleFileUpload(fileInput.files[0]);
             }
         });
     }
 
-    // 3. Text Form Submission Trigger
-    const analyzerForm = document.getElementById("analyzerForm");
     if (analyzerForm) {
-        analyzerForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const urlInput = document.getElementById("targetUrlInput").value;
-            runMatrixAnalysis(urlInput);
+        analyzerForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const urlInput = document.getElementById("targetUrlInput").value.trim();
+            if (urlInput) {
+                handleTextAnalysis(urlInput);
+            }
         });
     }
 
-    // 4. Matrix Decryption Effect Simulator
-    function decryptTextEffect(element, finalText, duration = 400) {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
-        let iterations = 0;
-        clearInterval(element.interval);
-
-        element.interval = setInterval(() => {
-            element.innerText = finalText
-                .split("")
-                .map((char, index) => {
-                    if (index < iterations) return finalText[index];
-                    return chars[Math.floor(Math.random() * chars.length)];
-                })
-                .join("");
-
-            if (iterations >= finalText.length) clearInterval(element.interval);
-            iterations += finalText.length / 10;
-        }, duration / 10);
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
     }
 
-    // 5. Main Scanner Execution Flow
-    function runMatrixAnalysis(targetPayload) {
-        const report = document.getElementById("analysisReport");
-        const progressBar = document.getElementById("progressBar");
+    function setStatus(text) {
         const statusText = document.getElementById("statusText");
+        if (statusText) {
+            statusText.textContent = text;
+        }
+    }
+
+    function showReport() {
+        const report = document.getElementById("analysisReport");
+        if (report) {
+            report.classList.remove("hidden");
+        }
+    }
+
+    function displayResult(result) {
         const reportResults = document.getElementById("reportResults");
-        const spinner = document.getElementById("statusSpinner");
-        
+        const verdictBox = document.getElementById("verdictBox");
+        const verdictTitle = document.getElementById("verdictTitle");
+        const verdictDescription = document.getElementById("verdictDescription");
         const resUrl = document.getElementById("resUrl");
         const resRep = document.getElementById("resRep");
         const resSsl = document.getElementById("resSsl");
-        const verdictBox = document.getElementById("verdictBox");
-        const verdictTitle = document.getElementById("verdictTitle");
 
-        if (!report || !progressBar || !statusText || !reportResults) return;
+        if (!reportResults || !verdictBox || !verdictTitle || !verdictDescription || !resUrl || !resRep || !resSsl) {
+            return;
+        }
 
-        report.classList.remove("hidden");
+        const verdict = result.verdict || "Safe";
+        const score = Number.isFinite(result.score) ? result.score : 0;
+        const transport = (result.analysis && result.analysis.transport) ? result.analysis.transport : "Unknown";
+
+        verdictTitle.textContent = verdict === "Malicious" ? "CRITICAL THREAT IDENTIFIED" : verdict === "Suspicious" ? "Potential Threat Detected" : "SECURE VERDICT: SAFE PAYLOAD";
+        verdictDescription.textContent = (result.analysis && result.analysis.notes) ? result.analysis.notes.join(" ") : "No suspicious traits were detected.";
+        resUrl.innerHTML = `<code>${escapeHtml(result.payload)}</code>`;
+        resRep.innerHTML = `<span class='score ${verdict === "Malicious" ? "score-high" : verdict === "Suspicious" ? "score-mid" : "score-low"}'>${verdict} (${score}/100)</span>`;
+        resSsl.innerHTML = `<span class='score ${transport === "HTTPS" ? "score-low" : "score-high"}'>${escapeHtml(transport)}</span>`;
+
+        verdictBox.className = `result-verdict ${verdict === "Malicious" ? "danger" : verdict === "Suspicious" ? "warning" : "safe"}`;
+        reportResults.classList.remove("hidden");
+    }
+
+    function runAnalysis(fetcher) {
+        const progressBar = document.getElementById("progressBar");
+        const spinner = document.getElementById("statusSpinner");
+        const reportResults = document.getElementById("reportResults");
+
+        if (!progressBar || !spinner || !reportResults) return;
+
+        showReport();
         reportResults.classList.add("hidden");
-        if (spinner) spinner.classList.add("fa-spin");
-        
-        let progress = 0;
+        spinner.classList.add("fa-spin");
         progressBar.style.width = "0%";
-        
-        const steps = [
-            { p: 25, txt: "DECRYPTING_MATRIX_STRINGS..." },
-            { p: 50, txt: "QUERYING_GLOBAL_BLACKLISTS..." },
-            { p: 75, txt: "ANALYZING_HOST_SSL_CERTIFICATE..." },
-            { p: 100, txt: "ANALYSIS_COMPLETE." }
+
+        const stages = [
+            { pct: 20, text: "VALIDATING PAYLOAD..." },
+            { pct: 45, text: "INSPECTING THREAT MARKERS..." },
+            { pct: 70, text: "ANALYZING TRANSPORT AND REDIRECTS..." },
+            { pct: 95, text: "FINALIZING VERDICT..." }
         ];
 
-        steps.forEach((step, index) => {
-            setTimeout(() => {
-                progressBar.style.width = `${step.p}%`;
-                decryptTextEffect(statusText, step.txt);
-                
-                if (step.p === 100) {
-                    if (spinner) spinner.classList.remove("fa-spin");
-                    resUrl.innerHTML = `<code>${targetPayload}</code>`;
-                    reportResults.classList.remove("hidden");
+        let stageIndex = 0;
+        const timer = setInterval(() => {
+            if (stageIndex >= stages.length) {
+                clearInterval(timer);
+                return;
+            }
+            const stage = stages[stageIndex];
+            progressBar.style.width = `${stage.pct}%`;
+            setStatus(stage.text);
+            stageIndex += 1;
+        }, 400);
 
-                    const lowerPayload = targetPayload.toLowerCase();
-                    if (lowerPayload.includes("bank") || lowerPayload.includes("malicious") || lowerPayload.includes("xyz")) {
-                        verdictBox.className = "result-verdict danger";
-                        decryptTextEffect(verdictTitle, "CRITICAL THREAT IDENTIFIED");
-                        resRep.innerHTML = "<span class='score score-high'>Suspicious / Flagged</span>";
-                        resSsl.innerHTML = "<span class='score score-high'>Missing or Spoofed</span>";
-                    } else {
-                        verdictBox.className = "result-verdict safe";
-                        decryptTextEffect(verdictTitle, "SECURE VERDICT: SAFE RESORT");
-                        resRep.innerHTML = "<span class='score score-low'>Verified (0 Flags)</span>";
-                        resSsl.innerHTML = "<span class='score score-low'>Valid / Safe Issuer</span>";
-                    }
+        return fetcher()
+            .then((response) => response.json())
+            .then((json) => {
+                clearInterval(timer);
+                progressBar.style.width = "100%";
+                spinner.classList.remove("fa-spin");
+                setStatus("ANALYSIS COMPLETE.");
+
+                if (!json.success) {
+                    setStatus(json.message || "Analysis failed.");
+                    return;
                 }
-            }, (index + 1) * 700);
-        });
+
+                displayResult(json.result);
+            })
+            .catch((error) => {
+                clearInterval(timer);
+                spinner.classList.remove("fa-spin");
+                progressBar.style.width = "100%";
+                setStatus("Analysis failed.");
+                console.error(error);
+            });
+    }
+
+    function handleTextAnalysis(payload) {
+        runAnalysis(() => fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ payload })
+        }));
+    }
+
+    function handleFileUpload(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        runAnalysis(() => fetch("/api/upload", {
+            method: "POST",
+            body: formData
+        }));
     }
 });

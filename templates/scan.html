@@ -1,83 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Threat Analyzer - Scan</title>
-    <link rel="stylesheet" href="../static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+﻿{% extends "base.html" %}
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-qrcode"></i> <span>QRShield</span>
+{% block content %}
+    <div class="card scan-container">
+        <h2>Analyze a QR Code</h2>
+        <p>Upload a QR code image or paste an extracted URL to run an intent payload, reputation check, and domain threat check.</p>
+        
+        <div class="analyzer-box">
+            <div class="upload-zone" id="dropZone">
+                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                <p>Click to select a QR Code image file or drag it here.</p>
+                <input type="file" id="qrFileInput" accept="image/*" style="display:none">
             </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item" id="nav-index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="scan.html" class="nav-item" id="nav-scan"><i class="fa-solid fa-shield-virus"></i> Analyze QR</a>
-                <a href="history.html" class="nav-item" id="nav-history"><i class="fa-solid fa-list-check"></i> Analysis Log</a>
-            </nav>
-        </aside>
 
-        <main class="main-content">
-            <header class="top-header">
-                <h1 id="page-title">Analyze QR Code</h1>
-                <div class="system-badge secure">
-                    <i class="fa-solid fa-circle-check"></i> Core Engine Active
+            <div class="divider"><span>OR</span></div>
+
+            <form id="analyzerForm" class="scan-form">
+                <div class="input-group">
+                    <input type="url" id="targetUrlInput" placeholder="Paste extracted QR string or URL to analyze..." required>
+                    <button type="submit" class="btn-primary">Inspect URL</button>
                 </div>
-            </header>
+            </form>
+        </div>
 
-            <div class="content-body">
-                <div class="card scan-container">
-                    <h2>Analyze a QR Code</h2>
-                    <p>Upload a QR code image or paste an extracted URL to run an intent payload, reputation check, and domain threat check.</p>
-                    
-                    <div class="analyzer-box">
-                        <div class="upload-zone" id="dropZone">
-                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                            <p>Drag & drop your QR Code image here, or <span class="highlight">browse files</span></p>
-                            <input type="file" id="qrFileInput" accept="image/*" style="display:none">
-                        </div>
-
-                        <div class="divider"><span>OR</span></div>
-
-                        <form id="analyzerForm" class="scan-form">
-                            <div class="input-group">
-                                <input type="url" id="targetUrlInput" placeholder="Paste extracted QR string or URL to analyze..." required>
-                                <button type="submit" class="btn-primary">Inspect URL</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div id="analysisReport" class="analysis-report hidden">
-                        <div class="report-header">
-                            <h3><i class="fa-solid fa-circle-notch" id="statusSpinner"></i> Analysis Status: <span id="statusText">Processing Payload...</span></h3>
-                        </div>
-                        
-                        <div class="progress-bar-bg">
-                            <div id="progressBar" class="progress-bar-fill"></div>
-                        </div>
-
-                        <div class="report-results hidden" id="reportResults">
-                            <div class="result-verdict" id="verdictBox">
-                                <h4 id="verdictTitle">Suspicious Link Detected</h4>
-                                <p id="verdictDescription">This URL contains suspicious redirect patterns common in credential harvesting.</p>
-                            </div>
-                            
-                            <table class="report-table">
-                                <tr><td><strong>Extracted Content:</strong></td><td id="resUrl">...</td></tr>
-                                <tr><td><strong>Domain Reputation:</strong></td><td id="resRep">...</td></tr>
-                                <tr><td><strong>SSL Certificate Status:</strong></td><td id="resSsl">...</td></tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <div id="analysisReport" class="analysis-report hidden">
+            <div class="report-header">
+                <h3><i class="fa-solid fa-circle-notch" id="statusSpinner"></i> Analysis Status: <span id="statusText">Preparing analysis...</span></h3>
             </div>
-        </main>
+            
+            <div class="progress-bar-bg">
+                <div id="progressBar" class="progress-bar-fill"></div>
+            </div>
+
+            <div class="report-results hidden" id="reportResults">
+                <div class="result-verdict" id="verdictBox">
+                    <h4 id="verdictTitle">Waiting for analysis</h4>
+                    <p id="verdictDescription">Upload an image or paste data to inspect the QR payload.</p>
+                </div>
+                
+                <table class="report-table">
+                    <tr><td><strong>Extracted Content:</strong></td><td id="resUrl">...</td></tr>
+                    <tr><td><strong>Threat Verdict:</strong></td><td id="resRep">...</td></tr>
+                    <tr><td><strong>SSL / Transport:</strong></td><td id="resSsl">...</td></tr>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <script src="../static/js/script.js"></script>
-</body>
-</html>
+{% endblock %}
