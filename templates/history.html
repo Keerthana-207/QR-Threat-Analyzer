@@ -1,45 +1,124 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-    <div class="card table-card">
-        <h2>Threat Log & Auditing</h2>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Source Type</th>
-                        <th>Extracted Endpoint Data</th>
-                        <th>Threat Score</th>
-                        <th>Verdict</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if scans %}
-                        {% for scan in scans %}
-                            <tr>
-                                <td>{{ scan[5] }}</td>
-                                <td>{{ scan[4] }}</td>
-                                <td><code>{{ scan[1] }}</code></td>
-                                <td><span class="score {{ 'score-high' if scan[2] >= 65 else 'score-mid' if scan[2] >= 35 else 'score-low' }}">{{ scan[2] }}/100</span></td>
+<style>
+    .cyber-table {
+        color: var(--cyber-text) !important;
+        border-color: rgba(0, 240, 255, 0.1) !important;
+        background: transparent !important;
+    }
+
+    .cyber-table th,
+    .cyber-table td {
+        background: transparent !important;
+        color: inherit !important;
+    }
+
+    .cyber-table thead,
+    .cyber-table tbody,
+    .cyber-table tr {
+        background: transparent !important;
+    }
+
+    .cyber-table thead th {
+        color: var(--neon-cyan) !important;
+        text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+        border-bottom: 2px solid var(--neon-cyan) !important;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+    }
+
+    .cyber-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .cyber-table tbody tr:hover {
+        background-color: rgba(0, 240, 255, 0.04) !important;
+    }
+
+    .log-row {
+        animation: tableFadeIn 0.5s ease forwards;
+    }
+
+    @keyframes tableFadeIn {
+        from { opacity: 0; transform: scaleX(0.98); }
+        to { opacity: 1; transform: scaleX(1); }
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+
+        <div class="cyber-panel p-4 p-sm-5">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
+                <div>
+                    <span style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);" class="small fw-bold text-uppercase d-block mb-1">&gt; SYSTEM_MEMORY_BANK</span>
+                    <h2 class="fw-bold text-uppercase m-0 h4 text-light"><i class="fa-solid fa-database me-2" style="color: var(--neon-cyan);"></i>CENTRAL INTELLIGENCE LOGS</h2>
+                </div>
+                <div class="mt-2 mt-sm-0 text-monospace small text-muted">
+                    SECURE_ARCHIVE // ACTIVE
+                </div>
+            </div>
+
+            <div class="table-responsive text-monospace">
+                <table class="table cyber-table table-hover align-middle mb-0">
+                    <thead class="text-uppercase small">
+                        <tr>
+                            <th scope="col" style="width: 15%;">TIMESTAMP</th>
+                            <th scope="col" style="width: 10%;">SOURCE</th>
+                            <th scope="col" style="width: 40%;">EXTRACTED ENDPOINT DATA</th>
+                            <th scope="col" class="text-center" style="width: 15%;">THREAT SCORE</th>
+                            <th scope="col" class="text-center" style="width: 20%;">VERDICT & ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        {% if scans %}
+                            {% for scan in scans %}
+                            <tr class="log-row">
+                                <td class="text-muted text-nowrap">{{ scan[5] }}</td>
+                                <td class="text-uppercase small"><span class="badge rounded-0 bg-dark text-cyan border border-secondary">{{ scan[4] }}</span></td>
+                                <td><code style="color: #ffffff;" class="text-break">{{ scan[1] }}</code></td>
+                                <td class="text-center fw-bold" style="color: {% if scan[2] >= 65 %}var(--neon-pink){% else %}var(--neon-green){% endif %};">
+                                    {{ scan[2] }}/100
+                                </td>
                                 <td>
-                                    {% if scan[3] == 'Malicious' %}
-                                        <span class="badge badge-fail">Malicious</span>
-                                    {% elif scan[3] == 'Suspicious' %}
-                                        <span class="badge badge-warn">Suspicious</span>
-                                    {% else %}
-                                        <span class="badge badge-success">Clean / Safe</span>
-                                    {% endif %}
+                                    <div class="d-flex align-items-center gap-2 justify-content-center">
+                                        {% if scan[3] == 'Malicious' or scan[3] == 'High Risk' %}
+                                            <span class="badge rounded-0 px-2 py-1 text-uppercase flex-grow-1" style="background: rgba(255,0,85,0.1); color: var(--neon-pink); border: 1px solid var(--neon-pink); text-shadow: 0 0 4px var(--neon-pink);">CRITICAL</span>
+                                        {% elif scan[3] == 'Suspicious' %}
+                                            <span class="badge bg-warning text-dark rounded-0 px-2 py-1 text-uppercase flex-grow-1">SUSPICIOUS</span>
+                                        {% else %}
+                                            <span class="badge rounded-0 px-2 py-1 text-uppercase flex-grow-1" style="background: rgba(57,255,20,0.1); color: var(--neon-green); border: 1px solid var(--neon-green); text-shadow: 0 0 4px var(--neon-green);">SAFE</span>
+                                        {% endif %}
+
+                                        <form action="/view-scan" method="POST" class="m-0">
+                                            <input type="hidden" name="scan_id" value="{{ scan[0] }}">
+                                            <button type="submit" class="btn btn-cyber btn-sm px-2 py-1">
+                                                <i class="fa-solid fa-eye small"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="5" style="text-align:center; color: var(--text-muted);">No scans recorded yet.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted text-uppercase">
+                                    <i class="fa-solid fa-folder-open fa-2x mb-3 d-block" style="color: var(--neon-pink);"></i>
+                                    [No system registries found inside cache buffer]
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex gap-2 mt-4 text-monospace small">
+                <a href="/scan" class="btn btn-cyber text-uppercase"><i class="fa-solid fa-bolt me-2"></i>Return_To_Scanner</a>
+            </div>
+
         </div>
     </div>
+</div>
 {% endblock %}

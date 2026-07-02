@@ -25,16 +25,18 @@ def analyze_payload(payload):
     analysis = {
         "transport": "Unknown",
         "domain": None,
+        "https": False,
         "notes": []
     }
 
     if not text:
         return {
             "payload": text,
-            "score": 0,
-            "verdict": "Safe",
+            "score": score,
+            "verdict": verdict,
             "source_type": source_type,
-            "analysis": analysis
+            "analysis": analysis,
+            "reasons": analysis["notes"]
         }
 
     if text.upper().startswith("WIFI:"):
@@ -67,19 +69,31 @@ def analyze_payload(payload):
 
     if is_valid_url(text):
         source_type = "URL"
-        normalized = text if text.startswith(("http://", "https://")) else f"http://{text}"
+        if text.startswith(("http://", "https://")):
+            normalized = text
+            scheme_provided = True
+        else:
+            normalized = f"https://{text}"
+            scheme_provided = False
         parsed = urlparse(normalized)
-        host = parsed.hostname or ""
+        host = (parsed.hostname or "").lower().strip()
 
         analysis["domain"] = host
-        analysis["transport"] = parsed.scheme.upper()
 
-        if parsed.scheme == "http":
-            score += 15
-            analysis["notes"].append("Unencrypted HTTP transport detected.")
-        elif parsed.scheme == "https":
-            score += 0
-            analysis["notes"].append("HTTPS transport detected.")
+        if scheme_provided:
+            analysis["transport"] = parsed.scheme.upper()
+            analysis["https"] = parsed.scheme == "https"
+        else:
+            analysis["transport"] = "UNSPECIFIED"
+            analysis["https"] = False
+            analysis["notes"].append("No explicit transport protocol provided in QR payload.")
+
+        if scheme_provided:
+            if parsed.scheme == "http":
+                score += 15
+                analysis["notes"].append("Unencrypted HTTP transport detected.")
+            elif parsed.scheme == "https":
+                analysis["notes"].append("HTTPS transport detected.")
 
         if any(host.endswith(short) for short in SHORTENER_DOMAINS):
             score += 30

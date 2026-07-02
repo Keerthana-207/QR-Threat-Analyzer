@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Custom Theme Colors mapped dynamically */
+    .text-cyan { color: var(--neon-cyan); text-shadow: 0 0 5px rgba(0, 240, 255, 0.4); }
+    .text-pink { color: var(--neon-pink); text-shadow: 0 0 5px rgba(255, 0, 85, 0.4); }
+    .text-green { color: var(--neon-green); text-shadow: 0 0 5px rgba(57, 255, 20, 0.4); }
+
+    /* Cyber Matrix Panel Animations */
+    .panel-entry {
+        animation: cyberFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cyberFadeUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Score Progress Bar Adjustments */
+    .cyber-progress {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 240, 255, 0.2);
+        border-radius: 0;
+        height: 12px;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+    .cyber-progress-bar {
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Sub-grid system components */
+    .intel-node {
+        background: rgba(18, 18, 37, 0.5);
+        border-left: 3px solid var(--neon-cyan);
+        padding: 10px 15px;
+    }
+
+    .reason-item {
+        background: rgba(255, 0, 85, 0.03);
+        border: 1px dashed rgba(255, 0, 85, 0.3);
+        color: #f8d7da;
+    }
+</style>
+
+<div class="row justify-content-center text-monospace panel-entry">
+    <div class="col-12 col-xl-10">
+        <div class="cyber-panel p-4 p-sm-5">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary pb-3 mb-4">
+                <div>
+                    <span class="text-pink small fw-bold text-uppercase d-block mb-1">&gt; DETAILED THREAT ANALYSIS</span>
+                    <h2 class="fw-bold text-uppercase m-0 h4 text-light">
+                        <i class="fa-solid fa-microscope me-2 text-cyan"></i>FORENSIC SCAN REPORT
+                    </h2>
+                </div>
+                <div class="mt-2 mt-sm-0 small text-muted">
+                    NODE_ID // <span class="text-white">{{ scan.id }}</span>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-7">
+                    <h5 class="text-cyan small text-uppercase mb-3"><i class="fa-solid fa-circle-info me-2"></i>Scan Metadata</h5>
+                    <div class="row g-2 small">
+                        <div class="col-4 text-muted">TIMESTAMP:</div>
+                        <div class="col-8 text-light">{{ scan.time }}</div>
+
+                        <div class="col-4 text-muted">REGISTRY ID:</div>
+                        <div class="col-8 text-light text-break">{{ scan.id }}</div>
+
+                        <div class="col-4 text-muted">SCAN STATUS:</div>
+                        <div class="col-8 text-green text-uppercase"><i class="fa-solid fa-check-double me-1"></i>{{ scan.status }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="text-cyan small text-uppercase m-0"><i class="fa-solid fa-gauge-high me-2"></i>Threat Score</h5>
+                        <span class="fw-bold fs-5 {% if scan.score >= 70 %}text-pink{% else %}text-green{% endif %}">{{ scan.score }}/100</span>
+                    </div>
+                    <div class="progress cyber-progress">
+                        <div class="progress-bar cyber-progress-bar {% if scan.score >= 70 %}bg-danger{% elif scan.score >= 40 %}bg-warning{% else %}bg-success{% endif %}"
+                             role="progressbar"
+                             style="width: {{ scan.score }}%;"
+                             aria-valuenow="{{ scan.score }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <span class="text-muted d-block mt-1 extreme-small" style="font-size:0.75rem;">* Values exceeding 70 trigger maximum isolation vectors</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="text-cyan small text-uppercase mb-2"><i class="fa-solid fa-qrcode me-2"></i>Decoded QR Payload</h5>
+                <div class="input-group">
+                    <span class="input-group-text rounded-0 border-secondary bg-dark text-muted small">&gt;_</span>
+                    <input type="text" class="form-control rounded-0 border-secondary bg-dark text-white font-monospace small" id="payloadBox" value="{{ scan.url }}" readonly>
+                    <button class="btn btn-cyber" type="button" onclick="copyPayload()"><i class="fa-solid fa-copy me-1"></i> Copy</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="text-cyan small text-uppercase mb-3"><i class="fa-solid fa-network-wired me-2"></i>Threat Intelligence Matrix</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6 col-md-4">
+                        <div class="intel-node">
+                            <span class="text-muted d-block small">TARGET DOMAIN</span>
+                            <strong class="text-light text-break small">{{ scan.domain }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="intel-node">
+                            <span class="text-muted d-block small">HTTPS CONFIG</span>
+                            {% if scan.transport == "HTTPS" %}
+                                <strong class="text-green small">
+                                    <i class="fa-solid fa-shield-halved me-1"></i> SECURE (HTTPS)
+                                </strong>
+                            {% elif scan.transport == "HTTP" %}
+                                <strong class="text-pink small">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> INSECURE (HTTP)
+                                </strong>
+                            {% else %}
+                                <strong class="text-warning small">
+                                    <i class="fa-solid fa-circle-question me-1"></i> UNSPECIFIED
+                                </strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="intel-node">
+                            <span class="text-muted d-block small">REDIRECT COUNTER</span>
+                            <strong class="text-light small">{{ scan.redirects }} Hop(s)</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="intel-node">
+                            <span class="text-muted d-block small">URL SHORTENER LINK</span>
+                            {% if scan.shortened %}
+                                <strong class="text-warning small"><i class="fa-solid fa-compress me-1"></i> DETECTED SHORTER</strong>
+                            {% else %}
+                                <strong class="text-muted small">NONE DETECTED</strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <div class="intel-node">
+                            <span class="text-muted d-block small">SUSPICIOUS KEYWORDS ENCOUNTERED</span>
+                            <span class="text-light small">
+                                {% if scan.keywords %}
+                                    {% for word in scan.keywords %}
+                                        <span class="badge bg-secondary rounded-0 me-1">{{ word }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <em class="text-muted">None triggered</em>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="text-cyan small text-uppercase mb-2"><i class="fa-solid fa-dna me-2"></i>System Trigger Flags</h5>
+                <div class="d-flex flex-column gap-2">
+                    {% if scan.reasons %}
+                        {% for reason in scan.reasons %}
+                            <div class="reason-item p-2 small d-flex align-items-center">
+                                <i class="fa-solid fa-triangle-exclamation text-pink me-3 ms-1"></i>
+                                <span>{{ reason }}</span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-2 small border border-secondary text-muted text-center bg-dark">
+                            [No anomalous signature flags mapped inside this package]
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-5">
+                {% if scan.status == 'Malicious' or scan.status == 'High Risk' %}
+                    <div class="p-4 text-center rounded-0 border animate-pulse" style="background: rgba(255,0,85,0.08); border: 2px solid var(--neon-pink) !important; box-shadow: 0 0 15px rgba(255,0,85,0.25);">
+                        <h3 class="text-pink fw-bold mb-1"><i class="fa-solid fa-skull-crossbones me-2"></i>THREAT DISCOVERED: HIGH RISK</h3>
+                        <p class="small text-light m-0">Isolate device vector immediately. Destination content displays properties matching malicious scripts or active exploits.</p>
+                    </div>
+                {% elif scan.status == 'Suspicious' %}
+                    <div class="p-4 text-center rounded-0 border" style="background: rgba(255,193,7,0.08); border: 2px solid #ffc107 !important; box-shadow: 0 0 15px rgba(255,193,7,0.25);">
+                        <h3 class="text-warning fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation me-2"></i>WARNING: SUSPICIOUS ACTIVITY</h3>
+                        <p class="small text-light m-0">Exercise high caution. Elements match non-standard URL wrappers, shorteners, or atypical parameters.</p>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center rounded-0 border" style="background: rgba(57,255,20,0.08); border: 2px solid var(--neon-green) !important; box-shadow: 0 0 15px rgba(57,255,20,0.25);">
+                        <h3 class="text-green fw-bold mb-1"><i class="fa-solid fa-shield-halved me-2"></i>INTEGRITY VERIFIED: SAFE</h3>
+                        <p class="small text-light m-0">No threat patterns registered. Destination resolves cleanly inside current known network safe lists.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                <div class="d-flex gap-2">
+                    <a href="/history" class="btn btn-cyber text-uppercase"><i class="fa-solid fa-database me-2"></i>Back_to_History</a>
+                    <a href="/" class="btn btn-cyber text-uppercase"><i class="fa-solid fa-bolt me-2"></i>Return_to_Scanner</a>
+                </div>
+                <form action="/delete/{{ scan.id }}" method="POST" class="m-0" onsubmit="return confirm('Purge data footprint from engine?');">
+                    <button type="submit" class="btn btn-cyber btn-cyber-pink text-uppercase">
+                        <i class="fa-solid fa-trash-can me-2"></i>Delete_Scan_Report
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function copyPayload() {
+    var copyText = document.getElementById("payloadBox");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+    navigator.clipboard.writeText(copyText.value);
+
+    // Change button text temporarily
+    const btn = event.currentTarget;
+    const oldHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = oldHTML; }, 1500);
+}
+</script>
+{% endblock %}
