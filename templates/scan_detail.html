@@ -40,6 +40,144 @@
         border: 1px dashed rgba(255, 0, 85, 0.3);
         color: #f8d7da;
     }
+
+    /* =======================================================
+   CYBER UI VISIBILITY FIXES
+   Add this at the END of your CSS file
+======================================================= */
+
+/* Override Bootstrap muted text */
+.text-muted {
+    color: #8fe9ff !important;
+    opacity: 1 !important;
+    text-shadow: 0 0 6px rgba(0, 242, 254, 0.15);
+}
+
+/* Custom cyber labels */
+.cyber-label {
+    color: #8fe9ff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px rgba(0, 242, 254, 0.15);
+}
+
+/* Secondary descriptive text */
+.cyber-subtext {
+    color: #cfd8e3;
+    opacity: 1;
+}
+
+/* Intel cards */
+.intel-node {
+    background: rgba(18, 18, 37, 0.65);
+    border-left: 3px solid var(--neon-cyan);
+    padding: 12px 16px;
+    transition: 0.25s ease;
+}
+
+.intel-node:hover {
+    background: rgba(0, 240, 255, 0.05);
+    border-left-color: #7ee7ff;
+    box-shadow: 0 0 15px rgba(0,240,255,.12);
+}
+
+/* Intel card headings */
+.intel-node span {
+    color: #8fe9ff !important;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Intel values */
+.intel-node strong {
+    color: #ffffff;
+}
+
+/* Metadata labels */
+.col-4.text-muted,
+.col-md-4.text-muted {
+    color: #8fe9ff !important;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Node ID */
+.small.text-muted {
+    color: #9fdcff !important;
+}
+
+/* Threat score explanation */
+.extreme-small,
+.small.text-muted.d-block {
+    color: #bcd8e6 !important;
+    opacity: 1 !important;
+}
+
+/* QR payload prompt (>_) */
+.input-group-text.text-muted {
+    color: #00f2fe !important;
+    border-color: rgba(0,242,254,.25);
+}
+
+/* Empty messages */
+em.text-muted {
+    color: #d6e2eb !important;
+    font-style: italic;
+}
+
+/* No anomaly box */
+.bg-dark.text-muted {
+    color: #d6e2eb !important;
+}
+
+/* Better readability everywhere */
+.text-light {
+    color: #f8fbff !important;
+}
+
+/* Panel headings */
+h5.text-cyan {
+    color: var(--neon-cyan);
+    letter-spacing: 1px;
+}
+
+/* Scan metadata values */
+.row.g-2 .text-light {
+    font-weight: 500;
+}
+
+/* Better contrast for cards */
+.cyber-panel {
+    box-shadow:
+        0 0 25px rgba(0,240,255,.08),
+        inset 0 0 10px rgba(255,255,255,.02);
+}
+
+/* Progress info */
+.progress {
+    overflow: hidden;
+}
+
+/* Buttons */
+.btn-cyber {
+    transition: .25s;
+}
+
+.btn-cyber:hover {
+    box-shadow: 0 0 15px rgba(0,240,255,.25);
+}
+
+/* Reason items */
+.reason-item {
+    color: #ffd8de;
+    border-color: rgba(255,0,85,.35);
+}
+
+/* Improve overall readability */
+body {
+    -webkit-font-smoothing: antialiased;
+}
 </style>
 
 <div class="row justify-content-center text-monospace panel-entry">
@@ -228,3 +366,4 @@ function copyPayload() {
 }
 </script>
 {% endblock %}
+
